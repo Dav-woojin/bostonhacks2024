@@ -6,7 +6,7 @@ from tkinter import messagebox
 # Create main application window
 root = ctk.CTk()
 root.title("MindOrbit")
-root.geometry("1000x1000")  # NEED TO MAKE FLEXIBLE FOR FULL SCREEN
+root.geometry("1000x1000") 
 
 # Today's month and year for calendar
 current_date = datetime.today()
@@ -20,11 +20,30 @@ tasks = {}
 def show_selected_date(selected_day):
     selected_date = f"{year}-{month:02d}-{selected_day:02d}"  # Format as YYYY-MM-DD
     task_list = tasks.get(selected_date, [])
+    
+    # Clear previous tasks and update left frame
+    for widget in tasks_frame.winfo_children():
+        widget.destroy()
+    
+    # Display the title for left frame
+    ctk.CTkLabel(tasks_frame, text="Tasks", font=("Arial", 18)).pack(pady=10)  
+
     if task_list:
-        tasks_str = "\n".join(task_list)
-        messagebox.showinfo("Tasks for " + selected_date, f"Tasks:\n{tasks_str}")
+        for task in task_list:
+            ctk.CTkLabel(tasks_frame, text=task).pack(pady=5)
     else:
-        messagebox.showinfo("Tasks for " + selected_date, "No tasks for this date.")
+        ctk.CTkLabel(tasks_frame, text="No tasks for this date.").pack(pady=5)
+
+    # Clear and update right frame
+    for widget in push_yourself_frame.winfo_children():
+        widget.destroy()
+    
+    # Display the title for the push yourself section (right frame)
+    ctk.CTkLabel(push_yourself_frame, text="Push Yourself!", font=("Arial", 18)).pack(pady=10)  
+
+    # Hide the calendar and show the split frame
+    calendar_frame.pack_forget()
+    split_frame.pack(expand=True, fill="both", padx=10, pady=10)  
 
 # Function to update the calendar grid
 def update_calendar():
@@ -75,6 +94,12 @@ def next_month():
         month += 1
     update_calendar()
 
+# Function to return to the month view
+def return_to_month_view():  
+    # Hide the split frame and show the calendar again
+    split_frame.pack_forget()  
+    calendar_frame.pack(expand=True, fill="both", padx=10, pady=10)  
+
 # Create title and navigation buttons
 title_frame = ctk.CTkFrame(root)
 title_frame.pack(pady=10)
@@ -98,6 +123,26 @@ calendar_frame.pack(expand=True, fill="both", padx=10, pady=10)
 # Initial calendar display
 update_calendar()
 
+# Create a frame for the tasks and the push yourself section
+split_frame = ctk.CTkFrame(root)
+
+# Left frame for tasks
+tasks_frame = ctk.CTkFrame(split_frame)
+tasks_frame.pack(side="left", fill="both", expand=True, padx=(0, 5))
+
+# Vertical line separator
+separator = ctk.CTkFrame(split_frame, width=2, bg_color="gray")
+separator.pack(side="left", fill="y")
+
+# Right frame for push yourself section
+push_yourself_frame = ctk.CTkFrame(split_frame)
+push_yourself_frame.pack(side="right", fill="both", expand=True, padx=(5, 0))
+
+
+# Add a back button to return to the month view
+back_button = ctk.CTkButton(split_frame, text="Back to Month View", command=return_to_month_view) 
+back_button.pack(pady=10)  
+
 # Optional: Add a way to add tasks to a specific date
 def add_task(selected_day):
     task = ctk.CTkEntry(root, placeholder_text="Enter task")
@@ -118,3 +163,7 @@ add_task_button = ctk.CTkButton(root, text="Add Task to Selected Date", command=
 add_task_button.pack(pady=5)
 
 root.mainloop()
+
+
+#NEED TO ADD TASKS TO THE TASK MENU
+#NEED TO MAKE CALANDER FLEXABLE
