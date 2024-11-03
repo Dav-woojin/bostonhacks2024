@@ -3,6 +3,8 @@ import calendar
 from datetime import datetime
 from tkinter import PhotoImage 
 from tkinter import messagebox
+from server import database
+import response
 
 root = ctk.CTk()
 root.title("MindOrbit")
@@ -57,6 +59,10 @@ def show_selected_date(selected_day):
                                     command=lambda: add_task_to_date(task_entry.get()))
     add_task_button.pack(pady=5)
 
+    pref = database.get_pref()
+    suggestions = response.generate_response(pref)
+    suggestion_label = ctk.CTkLabel(tasks_frame, text=suggestions)
+    suggestion_label.pack(pady=5)
 
     title_label.configure(text=f"{calendar.month_name[month]} {selected_day}, {year}", text_color=text_color)
 
