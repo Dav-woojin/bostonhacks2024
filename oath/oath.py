@@ -5,14 +5,14 @@ from google.auth.transport.requests import Request
 import requests
 import json, os
 from dotenv import load_dotenv
+from server.database import get_user_info
 load_dotenv()
 
 def google_sign_in():
-
     client_id = os.getenv("GOOGLE_CLIENT_ID")
     client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
     redirect_uri = os.getenv("GOOGLE_REDIRECT_URI")
-    print(client_id)
+    
     client_config = {
         "web": {
             "client_id": client_id,
@@ -23,9 +23,6 @@ def google_sign_in():
         }
     }
 
-    # Step 1: Set up the OAuth 2.0 flow
-    print("hello")
-    print(client_config)
     flow = InstalledAppFlow.from_client_config(
         client_config = client_config,
         scopes=['openid', 'https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email']
@@ -36,7 +33,6 @@ def google_sign_in():
     # Step 2: Open the browser for authentication
     credentials = flow.run_local_server(port=0)
     
-    # Step 3: Retrieve user profile information if authenticated
     if credentials:
         # Obtain the ID token and access token
         access_token = credentials.token
@@ -48,7 +44,9 @@ def google_sign_in():
         user_info = response.json()
         
         # Display user info in a Tkinter messagebox
+
         if response.ok:
+            
             messagebox.showinfo("Login Successful", f"Welcome, {user_info['name']}!\nEmail: {user_info['email']}")
         else:
             messagebox.showerror("Login Failed", "Unable to retrieve user information")

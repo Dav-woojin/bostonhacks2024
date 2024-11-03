@@ -4,28 +4,25 @@ from pymongo import MongoClient
 import sys, os
 from dotenv import load_dotenv
 load_dotenv()
-# MongoDB setup (use your correct MongoDB URI and database/collection name)
-
-MONGO_USER = os.getenv('MONGO_USER')
-MONGO_PW = os.getenv('MONGO_PW')
-
-
-mongo_url = "mongodb+srv://{}:{}@cluster0.30uxb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0".format(MONGO_USER, MONGO_PW)
-client = MongoClient(mongo_url)
-db = client['mind_orbit_db']
-collection = db['users']
 
 # Initialize the CustomTkinter app
-customtkinter.set_appearance_mode("light")  # You can use "dark" if preferred
+customtkinter.set_appearance_mode("dark")  # You can use "dark" if preferred
 app = customtkinter.CTk()
 app.geometry("400x300")
 app.title("Survey")
 
 # Survey questions and options (each item is a page)
+categories = {
+    "Exercise": "What type of exercise do you do?",
+    "Sleep": "Average Sleep per Night",
+    "Stress": "Select your preferred IDEs:"
+    #"Hobbies",
+}
+
 survey_data = [
-    {"question": "What type of exercise do you do?", "options": ["Python", "JavaScript", "Java", "C++"]},
-    {"question": "Select your preferred IDEs:", "options": ["VS Code", "PyCharm", "Jupyter", "Eclipse"]},
-    {"question": "Average Sleep per Night", "options": ["MongoDB", "MySQL", "PostgreSQL", "SQLite"]},
+    {"question": categories['Exercise'], "options": ["Python", "JavaScript", "Java", "C++"]},
+    {"question": categories['Sleep'], "options": ["VS Code", "PyCharm", "Jupyter", "Eclipse"]},
+    {"question": categories['Stress'], "options": ["MongoDB", "MySQL", "PostgreSQL", "SQLite"]},
 ]
 
 # Variables to track page index and responses
@@ -55,7 +52,6 @@ def load_page():
         checkbox = customtkinter.CTkCheckBox(page_frame, text=option, variable=var)
         checkbox.pack(anchor="w", padx=20)
         checkbox_vars.append((option, var))
-
     # Store the checkbox variables for later retrieval
     responses[page_index]["checkbox_vars"] = checkbox_vars
 
@@ -82,16 +78,23 @@ def prev_page():
     page_index -= 1
     load_page()  # Load the previous page
 
-# Submit function to save data to MongoDB
+
 def submit():
+    # create new user with these preferences
     save_responses()  # Ensure the last page responses are saved
-    survey_response = [
-        {option: selected for option, selected in response.items() if option != "checkbox_vars"}
-        for response in responses
-    ]
-    print(survey_responses)
-    collection.insert_one({"survey_responses": survey_responses})
-    result_label.configure(text="Responses submitted!")  # Confirmation message
+    survey_response = [{option: selected for option, selected in response.items() if option != "checkbox_vars"} for response in responses]
+    print(survey_response)
+    exercise = [option for option, selected in survey_response[0].items() if selected == True]
+    sleep = [option for option, selected in survey_response[1].items() if selected == True]
+    stress = [option for option, selected in survey_response[2].items() if selected == True]
+    hobbies = []
+    survey_response = {'exercise': exercise, 'sleep': sleep, 'stress': stress}
+    print(survey_response)
+
+        
+
+    #collection.insert_one({"survey_responses": survey_responses})
+    #result_label.configure(text="Responses submitted!")  # Confirmation message
 
 # Main frame to hold survey pages
 page_frame = customtkinter.CTkFrame(app)
