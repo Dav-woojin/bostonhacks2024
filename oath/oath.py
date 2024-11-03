@@ -5,8 +5,18 @@ from google.auth.transport.requests import Request
 import requests
 import json, os
 from dotenv import load_dotenv
-from server.database import get_user_info
+from pymongo import MongoClient
+from pymongo.server_api import ServerApi
+
 load_dotenv()
+
+MONGO_USER = os.getenv('MONGO_USER')
+MONGO_PW = os.getenv('MONGO_PW')
+uri = "mongodb+srv://{}:{}@cluster0.30uxb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0".format(MONGO_USER, MONGO_PW)
+client = MongoClient(uri, server_api=ServerApi('1'))
+
+db = client['mind_orbit_db']  # Database name
+users_collection = db['users']  # Collection name
 
 def google_sign_in():
     client_id = os.getenv("GOOGLE_CLIENT_ID")
@@ -46,8 +56,18 @@ def google_sign_in():
         # Display user info in a Tkinter messagebox
 
         if response.ok:
+            # Store user info in MongoDB
+            user_id = user_info.get("id")
+            existing_user = users_collection.find_one({"id": user_id})
             
-            messagebox.showinfo("Login Successful", f"Welcome, {user_info['name']}!\nEmail: {user_info['email']}")
+            if not existing_user:
+                # Insert new user data into MongoDB
+                users_collection.insert_one(user_info)
+                messagebox.showinfo("Login Successful", f"Welcome, {user_info['name']}!\nEmail: {user_info['email']}")
+                #show preferences list
+                
+            else:
+                messagebox.showinfo("Login Successful", f"Welcome back, {user_info['name']}!")
         else:
             messagebox.showerror("Login Failed", "Unable to retrieve user information")
     else:
