@@ -1,6 +1,7 @@
 import customtkinter as ctk
 import calendar
 from datetime import datetime
+from tkinter import PhotoImage 
 from tkinter import messagebox
 
 root = ctk.CTk()
@@ -14,6 +15,17 @@ month = current_date.month
 tasks = {}
 selected_date = None  
 
+# Space-themed colors
+bg_color = "#1B1B2B"  # Dark background for space
+task_bg_color = "#2E2E3A"  # Slightly lighter background for tasks
+button_fg_color = "#3E4C6D"  # Soft grayish-blue for buttons
+text_color = "#FFFFFF"  # White text for contrast
+label_color = "#A0A0C0"  # Soft lavender for labels
+
+
+# Load the background image for the calendar frame
+bg_image = PhotoImage(file="night_sky.png")  # Ensure the image path is correct
+
 def show_selected_date(selected_day):
     global selected_date
     selected_date = f"{year}-{month:02d}-{selected_day:02d}" 
@@ -23,20 +35,20 @@ def show_selected_date(selected_day):
         widget.destroy()
 
     # Display the title for left frame
-    ctk.CTkLabel(tasks_frame, text="Tasks", font=("Arial", 18)).pack(pady=10)
+    ctk.CTkLabel(tasks_frame, text="Tasks", font=("Arial", 18), text_color=text_color).pack(pady=10)
 
     if task_list:
-        for task in task_list:
-            ctk.CTkLabel(tasks_frame, text=task).pack(pady=5)
+       for task in task_list:
+           ctk.CTkLabel(tasks_frame, text=task, text_color=text_color).pack(pady=5)
     else:
-        ctk.CTkLabel(tasks_frame, text="No tasks for this date.").pack(pady=5)
+       ctk.CTkLabel(tasks_frame, text="No tasks for this date.", text_color=text_color).pack(pady=5)
 
     # Clear and update right frame
     for widget in push_yourself_frame.winfo_children():
         widget.destroy()
 
     # Display the title for the push yourself section (right frame)
-    ctk.CTkLabel(push_yourself_frame, text="Push Yourself!", font=("Arial", 18)).pack(pady=10)
+    ctk.CTkLabel(push_yourself_frame, text="Push Yourself!", font=("Arial", 18), text_color=text_color).pack(pady=10)
 
     # Add task entry and button in the right frame
     task_entry = ctk.CTkEntry(push_yourself_frame, placeholder_text="Enter task")
@@ -46,7 +58,7 @@ def show_selected_date(selected_day):
     add_task_button.pack(pady=5)
 
 
-    title_label.configure(text=f"{calendar.month_name[month]} {selected_day}, {year}")
+    title_label.configure(text=f"{calendar.month_name[month]} {selected_day}, {year}", text_color=text_color)
 
     # Hide the calendar and show the split frame
     calendar_frame.pack_forget()
@@ -58,6 +70,9 @@ def update_calendar():
     for widget in calendar_frame.winfo_children():
         widget.destroy()
 
+    bg_label = ctk.CTkLabel(calendar_frame, image=bg_image)
+    bg_label.place(relwidth=1, relheight=1)  # Fill the entire calendar frame with the image
+
     # Update title label
     title_label.configure(text=f"{calendar.month_name[month]} {year}")
 
@@ -68,18 +83,18 @@ def update_calendar():
     # Calendar physical
     day = 1
     for row in range(6):
-        for col in range(7):
-            if row == 0 and col < first_weekday:
-                ctk.CTkLabel(calendar_frame, text="").grid(row=row, column=col, padx=5, pady=5)
-            elif day > days_in_month:
-                break  # Days end when month end
-            else:
-                # Buttons for each day
-                day_button = ctk.CTkButton(calendar_frame, text=str(day), width=80, height=80,
-                                           corner_radius=10, fg_color="gray",
-                                           command=lambda d=day: show_selected_date(d))
-                day_button.grid(row=row, column=col, padx=5, pady=5)
-                day += 1
+       for col in range(7):
+           if row == 0 and col < first_weekday:
+               ctk.CTkLabel(calendar_frame, text="", fg_color="transparent").grid(row=row, column=col, padx=5, pady=5)
+           elif day > days_in_month:
+               break  # Days end when month end
+           else:
+               # Buttons for each day
+               day_button = ctk.CTkButton(calendar_frame, text=str(day), width=80, height=80,
+                                          corner_radius=10, fg_color=button_fg_color,
+                                          command=lambda d=day: show_selected_date(d))
+               day_button.grid(row=row, column=col, padx=5, pady=5)
+               day += 1
 
 # Function to go to the previous month
 def prev_month():
