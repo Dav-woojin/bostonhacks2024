@@ -112,7 +112,7 @@ def add_task_to_date(task):
     if not selected_date:
         messagebox.showerror("Error", "Please select a date first.")
         return
-
+    
     if task:
         # Add task to the selected date in the tasks dictionary
         if selected_date in tasks:
