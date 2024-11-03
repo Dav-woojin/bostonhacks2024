@@ -12,6 +12,7 @@ try:
     client = MongoClient(uri, server_api=ServerApi('1'))
     database = client.get_database("mind_orbit_db")
     users = database.get_collection('users')
+    tasks = database.get_collection('tasks')
     print("Successfully connected to database")
 except Exception as e:
     print("Failed: ", e)
