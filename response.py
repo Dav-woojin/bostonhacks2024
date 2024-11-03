@@ -6,15 +6,15 @@ load_dotenv()
 OPENAI_SECRET_KEY = os.getenv('OPENAI_SECRET_KEY')
 client = OpenAI(api_key=OPENAI_SECRET_KEY)
 pref = database.get_pref()
-completion = client.chat.completions.create(
+def generate_response(pref):
+    completion = client.chat.completions.create(
     model="gpt-4o-mini",
     messages=[
         {"role": "system", "content": "You are a motivational helper that is helping someone improve their emotional, phyiscal, and social health."},
         {
             "role": "user",
-            "content": "Generate a small task for the user to do based on these {} preferences. Make 5 bullet points and keep each bullet point at 7 words".format(pref)
+            "content": "Generate a small task for the user to do based on these {} preferences. Make 5 bullet points and keep each bullet point at 7 words. Dont include special characters, and ensure that all responses are generated the same".format(pref)
         }
     ]
-)
-
-print(completion.choices[0].message.content)
+    )
+    return completion.choices[0].message.content
