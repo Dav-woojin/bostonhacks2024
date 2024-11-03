@@ -122,7 +122,7 @@ def prev_page():
 
     load_page()  # Load the previous page
 
-# Submit function to save data to MongoDB
+
 def submit():
     save_responses()  # Save last page responses
     formatted_responses = {

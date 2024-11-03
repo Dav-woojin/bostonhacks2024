@@ -3,31 +3,27 @@ import calendar
 from datetime import datetime
 from tkinter import messagebox
 
-# Create main application window
 root = ctk.CTk()
 root.title("MindOrbit")
-root.geometry("1000x1000") 
+root.geometry("1000x1000")
 
-# Today's month and year for calendar
 current_date = datetime.today()
-day = current_date.day
 year = current_date.year
 month = current_date.month
 
-# Dictionary to store tasks by date
 tasks = {}
+selected_date = None  
 
-# Function to show tasks for the selected date
 def show_selected_date(selected_day):
-    selected_date = f"{year}-{month:02d}-{selected_day:02d}"  # Format as YYYY-MM-DD
+    global selected_date
+    selected_date = f"{year}-{month:02d}-{selected_day:02d}" 
     task_list = tasks.get(selected_date, [])
-    
-    # Clear previous tasks and update left frame
+
     for widget in tasks_frame.winfo_children():
         widget.destroy()
-    
+
     # Display the title for left frame
-    ctk.CTkLabel(tasks_frame, text="Tasks", font=("Arial", 18)).pack(pady=10)  
+    ctk.CTkLabel(tasks_frame, text="Tasks", font=("Arial", 18)).pack(pady=10)
 
     if task_list:
         for task in task_list:
@@ -38,22 +34,30 @@ def show_selected_date(selected_day):
     # Clear and update right frame
     for widget in push_yourself_frame.winfo_children():
         widget.destroy()
-    
+
     # Display the title for the push yourself section (right frame)
-    ctk.CTkLabel(push_yourself_frame, text="Push Yourself!", font=("Arial", 18)).pack(pady=10)  
+    ctk.CTkLabel(push_yourself_frame, text="Push Yourself!", font=("Arial", 18)).pack(pady=10)
+
+    # Add task entry and button in the right frame
+    task_entry = ctk.CTkEntry(push_yourself_frame, placeholder_text="Enter task")
+    task_entry.pack(pady=5)
+    add_task_button = ctk.CTkButton(push_yourself_frame, text="Add Task",
+                                    command=lambda: add_task_to_date(task_entry.get()))
+    add_task_button.pack(pady=5)
+
 
     title_label.configure(text=f"{calendar.month_name[month]} {selected_day}, {year}")
 
     # Hide the calendar and show the split frame
     calendar_frame.pack_forget()
-    split_frame.pack(expand=True, fill="both", padx=10, pady=10)  
+    split_frame.pack(expand=True, fill="both", padx=10, pady=10)
 
 # Function to update the calendar grid
 def update_calendar():
     # Clear the previous grid
     for widget in calendar_frame.winfo_children():
         widget.destroy()
-  
+
     # Update title label
     title_label.configure(text=f"{calendar.month_name[month]} {year}")
 
@@ -64,7 +68,7 @@ def update_calendar():
     # Calendar physical
     day = 1
     for row in range(6):
-        for col in range(7): 
+        for col in range(7):
             if row == 0 and col < first_weekday:
                 ctk.CTkLabel(calendar_frame, text="").grid(row=row, column=col, padx=5, pady=5)
             elif day > days_in_month:
@@ -98,10 +102,27 @@ def next_month():
     update_calendar()
 
 # Function to return to the month view
-def return_to_month_view():  
+def return_to_month_view():
     # Hide the split frame and show the calendar again
-    split_frame.pack_forget()  
-    calendar_frame.pack(expand=True, fill="both", padx=10, pady=10)  
+    split_frame.pack_forget()
+    calendar_frame.pack(expand=True, fill="both", padx=10, pady=10)
+
+# Function to add a task to the selected date
+def add_task_to_date(task):
+    if not selected_date:
+        messagebox.showerror("Error", "Please select a date first.")
+        return
+
+    if task:
+        # Add task to the selected date in the tasks dictionary
+        if selected_date in tasks:
+            tasks[selected_date].append(task)
+        else:
+            tasks[selected_date] = [task]
+
+        # Update the task list in the left frame
+        show_selected_date(int(selected_date.split('-')[2]))
+        messagebox.showinfo("Task Added", f"Task '{task}' added for {selected_date}")
 
 # Create title and navigation buttons
 title_frame = ctk.CTkFrame(root)
@@ -141,32 +162,8 @@ separator.pack(side="left", fill="y")
 push_yourself_frame = ctk.CTkFrame(split_frame)
 push_yourself_frame.pack(side="right", fill="both", expand=True, padx=(5, 0))
 
-
 # Add a back button to return to the month view
-back_button = ctk.CTkButton(split_frame, text="Back to Month View", command=return_to_month_view) 
-back_button.pack(pady=10)  
-
-# Optional: Add a way to add tasks to a specific date
-def add_task(selected_day):
-    task = ctk.CTkEntry(root, placeholder_text="Enter task")
-    task.pack(pady=5)
-    task_button = ctk.CTkButton(root, text="Add Task", command=lambda: add_task_to_date(selected_day, task.get()))
-    task_button.pack(pady=5)
-
-def add_task_to_date(selected_day, task):
-    selected_date = f"{year}-{month:02d}-{selected_day:02d}"
-    if selected_date in tasks:
-        tasks[selected_date].append(task)
-    else:
-        tasks[selected_date] = [task]
-    messagebox.showinfo("Task Added", f"Task '{task}' added for {selected_date}")
-
-# Add a button to allow adding tasks
-add_task_button = ctk.CTkButton(root, text="Add Task to Selected Date", command=lambda: add_task(selected_day=1))
-add_task_button.pack(pady=5)
+back_button = ctk.CTkButton(split_frame, text="Back to Month View", command=return_to_month_view)
+back_button.pack(pady=10)
 
 root.mainloop()
-
-
-#NEED TO ADD TASKS TO THE TASK MENU
-#NEED TO MAKE CALANDER FLEXABLE
