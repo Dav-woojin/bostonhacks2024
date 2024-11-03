@@ -10,6 +10,7 @@ root.geometry("1000x1000")
 
 # Today's month and year for calendar
 current_date = datetime.today()
+day = current_date.day
 year = current_date.year
 month = current_date.month
 
@@ -40,6 +41,8 @@ def show_selected_date(selected_day):
     
     # Display the title for the push yourself section (right frame)
     ctk.CTkLabel(push_yourself_frame, text="Push Yourself!", font=("Arial", 18)).pack(pady=10)  
+
+    title_label.configure(text=f"{calendar.month_name[month]} {selected_day}, {year}")
 
     # Hide the calendar and show the split frame
     calendar_frame.pack_forget()
