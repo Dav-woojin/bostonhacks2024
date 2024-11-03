@@ -10,12 +10,12 @@ root.geometry("1000x1000")
 
 # Today's month and year for calendar
 current_date = datetime.today()
+day = current_date.day
 year = current_date.year
 month = current_date.month
 
 # Dictionary to store tasks by date
 tasks = {}
-selected_day_var = ctk.StringVar(value="")  # StringVar to track selected date
 
 # Function to show tasks for the selected date
 def show_selected_date(selected_day):
@@ -42,25 +42,13 @@ def show_selected_date(selected_day):
     # Display the title for the push yourself section (right frame)
     ctk.CTkLabel(push_yourself_frame, text="Push Yourself!", font=("Arial", 18)).pack(pady=10)  
 
+    title_label.configure(text=f"{calendar.month_name[month]} {selected_day}, {year}")
+
     # Hide the calendar and show the split frame
     calendar_frame.pack_forget()
     split_frame.pack(expand=True, fill="both", padx=10, pady=10)  
 
-    # Update the selected day variable
-    selected_day_var.set(selected_day)
-
-    # Highlight the selected date
-    highlight_selected_date(selected_day)
-
-# Function to highlight the selected date
-def highlight_selected_date(selected_day):
-    for button in day_buttons.values():
-        button.configure(fg_color="gray")  # Reset color for all days
-    if selected_day in day_buttons:
-        day_buttons[selected_day].configure(fg_color="lightblue")  # Highlight selected day
-
 # Function to update the calendar grid
-day_buttons = {}  # Store buttons for highlighting
 def update_calendar():
     # Clear the previous grid
     for widget in calendar_frame.winfo_children():
@@ -87,7 +75,6 @@ def update_calendar():
                                            corner_radius=10, fg_color="gray",
                                            command=lambda d=day: show_selected_date(d))
                 day_button.grid(row=row, column=col, padx=5, pady=5)
-                day_buttons[day] = day_button  # Store reference to button
                 day += 1
 
 # Function to go to the previous month
@@ -160,29 +147,26 @@ back_button = ctk.CTkButton(split_frame, text="Back to Month View", command=retu
 back_button.pack(pady=10)  
 
 # Optional: Add a way to add tasks to a specific date
-def add_task():
-    selected_day = selected_day_var.get()  # Get the selected day from StringVar
-    if selected_day:
-        task = task_entry.get()
-        if task:  # Check if the task is not empty
-            selected_date = f"{year}-{month:02d}-{selected_day:02d}"
-            if selected_date in tasks:
-                tasks[selected_date].append(task)
-            else:
-                tasks[selected_date] = [task]
-            messagebox.showinfo("Task Added", f"Task '{task}' added for {selected_date}")
-            task_entry.delete(0, 'end')  # Clear the input field
-        else:
-            messagebox.showwarning("Input Error", "Please enter a task.")
-    else:
-        messagebox.showwarning("No Date Selected", "Please select a date first.")
+def add_task(selected_day):
+    task = ctk.CTkEntry(root, placeholder_text="Enter task")
+    task.pack(pady=5)
+    task_button = ctk.CTkButton(root, text="Add Task", command=lambda: add_task_to_date(selected_day, task.get()))
+    task_button.pack(pady=5)
 
-# Create a task entry field
-task_entry = ctk.CTkEntry(root, placeholder_text="Enter task")
-task_entry.pack(pady=5)
+def add_task_to_date(selected_day, task):
+    selected_date = f"{year}-{month:02d}-{selected_day:02d}"
+    if selected_date in tasks:
+        tasks[selected_date].append(task)
+    else:
+        tasks[selected_date] = [task]
+    messagebox.showinfo("Task Added", f"Task '{task}' added for {selected_date}")
 
 # Add a button to allow adding tasks
-add_task_button = ctk.CTkButton(root, text="Add Task to Selected Date", command=add_task)
+add_task_button = ctk.CTkButton(root, text="Add Task to Selected Date", command=lambda: add_task(selected_day=1))
 add_task_button.pack(pady=5)
 
 root.mainloop()
+
+
+#NEED TO ADD TASKS TO THE TASK MENU
+#NEED TO MAKE CALANDER FLEXABLE
