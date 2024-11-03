@@ -13,6 +13,7 @@ try:
     database = client.get_database("mind_orbit_db")
     users = database.get_collection('users')
     tasks = database.get_collection('tasks')
+    preferences = database.get_collection('preferences')
     print("Successfully connected to database")
 except Exception as e:
     print("Failed: ", e)
@@ -24,16 +25,32 @@ except Exception as e:
 # Stress
 # Hobbies
 
-def create_user(name, email, survey_response):
+def create_user(name, email, formatted_response):
     user = {        
         'name': name,
         'email': email,
-        'exercise': survey_response['exercise'],
-        'sleep': survey_response['sleep'],
-        'stress': survey_response['stress'],
-        'hobbies': survey_response['hobbies']
+        'exercise': formatted_response['Physical']['exercise'],
+        'frequency': formatted_response['Physical']['frequency'],
+        'goal': formatted_response['Physical']['goal'],
+        'hobbies': formatted_response['Mental']['hobbies'],
+        'socialize': formatted_response['Social']['socialize']
     }
-    return users
+    return user
+
+def add_prefs(formatted_response):
+    pref = {
+        'exercise': formatted_response['Physical']['exercise'],
+        'frequency': formatted_response['Physical']['frequency'],
+        'goal': formatted_response['Physical']['goal'],
+        'hobbies': formatted_response['Mental']['hobbies'],
+        'socialize': formatted_response['Social']['socialize']
+    }
+    preferences.insert_one(pref)
+    return True
+
+def get_pref():
+    return preferences.find_one()
+
 
 def get_user_info(email):
     try:
